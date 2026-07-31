@@ -3,6 +3,7 @@ import React, { Suspense, useEffect, useRef, useState } from "react";
 import { Application, SPEObject, SplineEvent } from "@splinetool/runtime";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { animate } from "motion";
 const Spline = React.lazy(() => import("@splinetool/react-spline"));
 import { Skill, SkillNames, SKILLS } from "@/data/constants";
 import { sleep } from "@/lib/utils";
@@ -14,6 +15,15 @@ import { useSounds } from "./realtime/hooks/use-sounds";
 import { usePerfProfile } from "@/hooks/use-perf-profile";
 
 gsap.registerPlugin(ScrollTrigger);
+
+const KEYBOARD_POP_MODE = true;
+const DROP_KEYS_ANIMATION = false;
+
+type KeyTransform = {
+  position: { x: number; y: number; z: number };
+  rotation: { x: number; y: number; z: number };
+  scale: { x: number; y: number; z: number };
+};
 
 const KeyboardScene = ({ maxDpr }: { maxDpr: number }) => {
   const { isLoading, bypassLoading } = usePreloader();
@@ -31,6 +41,8 @@ const KeyboardScene = ({ maxDpr }: { maxDpr: number }) => {
   // Animation controllers refs
   const bongoAnimationRef = useRef<{ start: () => void; stop: () => void }>(null);
   const keycapAnimationsRef = useRef<{ start: () => void; stop: () => void }>(null);
+  const dropKeysAnimationRef = useRef<{ start: () => void; stop: () => void }>(null);
+  const popOutKeyAnimationRef = useRef<{ start: () => void; stop: () => void }>(null);
 
   const [keyboardRevealed, setKeyboardRevealed] = useState(false);
 
@@ -235,6 +247,415 @@ const KeyboardScene = ({ maxDpr }: { maxDpr: number }) => {
     return { start, stop };
   };
 
+  const getDropKeysAnimation = () => {
+    if (!splineApp) return { start: () => { }, stop: () => { } };
+
+    let runId = 0;
+    let activeSkillName: string | null = null;
+    let timers: number[] = [];
+    let tweens: gsap.core.Tween[] = [];
+    const originals = new Map<string, KeyTransform>();
+
+    const skillsWithKeys = () =>
+      Object.values(SKILLS).filter((skill) => splineApp.findObjectByName(skill.name));
+
+    const rememberOriginal = (skillName: string, keycap: SPEObject) => {
+      if (originals.has(skillName)) return;
+      originals.set(skillName, {
+        position: { x: keycap.position.x, y: keycap.position.y, z: keycap.position.z },
+        rotation: { x: keycap.rotation.x, y: keycap.rotation.y, z: keycap.rotation.z },
+        scale: { x: keycap.scale.x, y: keycap.scale.y, z: keycap.scale.z },
+      });
+    };
+
+    const clearTimers = () => {
+      timers.forEach((timer) => window.clearTimeout(timer));
+      timers = [];
+    };
+
+    const killTweens = () => {
+      tweens.forEach((tween) => tween.kill());
+      tweens = [];
+    };
+
+    const animateBack = (skillName: string, duration = 0.55) => {
+      const keycap = splineApp.findObjectByName(skillName);
+      const original = originals.get(skillName);
+      if (!keycap || !original) return;
+
+      tweens.push(
+        gsap.to(keycap.position, {
+          ...original.position,
+          duration,
+          ease: "power3.out",
+        }),
+        gsap.to(keycap.rotation, {
+          ...original.rotation,
+          duration,
+          ease: "power3.out",
+        }),
+        gsap.to(keycap.scale, {
+          ...original.scale,
+          duration,
+          ease: "back.out(1.4)",
+        })
+      );
+    };
+
+    const start = () => {
+      runId++;
+      const currentRun = runId;
+      clearTimers();
+      killTweens();
+
+      const keySkills = skillsWithKeys();
+      keySkills.forEach((skill) => {
+        const keycap = splineApp.findObjectByName(skill.name);
+        if (keycap) rememberOriginal(skill.name, keycap);
+      });
+
+      const startTimer = window.setTimeout(() => {
+        keySkills.forEach((skill, index) => {
+          const timer = window.setTimeout(() => {
+            if (currentRun !== runId) return;
+
+            if (activeSkillName && activeSkillName !== skill.name) {
+              animateBack(activeSkillName);
+              playReleaseSound();
+            }
+
+            const keycap = splineApp.findObjectByName(skill.name);
+            const original = originals.get(skill.name);
+            if (!keycap || !original) return;
+
+            activeSkillName = skill.name;
+            selectedSkillRef.current = skill;
+            setSelectedSkill(skill);
+            playPressSound();
+            splineApp.setVariable("heading", skill.label);
+            splineApp.setVariable("desc", skill.shortDescription);
+
+            tweens.push(
+              gsap.to(keycap.position, {
+                x: original.position.x,
+                y: original.position.y + 260,
+                z: original.position.z + 20,
+                duration: 0.75,
+                ease: "bounce.out",
+              }),
+              gsap.to(keycap.rotation, {
+                x: original.rotation.x + 0.25,
+                y: original.rotation.y + 0.18,
+                z: original.rotation.z + 0.12,
+                duration: 0.75,
+                ease: "power3.out",
+              }),
+              gsap.to(keycap.scale, {
+                x: original.scale.x * 1.16,
+                y: original.scale.y * 1.16,
+                z: original.scale.z * 1.16,
+                duration: 0.75,
+                ease: "back.out(1.8)",
+              })
+            );
+          }, index * 200);
+
+          timers.push(timer);
+        });
+      }, 500);
+
+      timers.push(startTimer);
+    };
+
+    const stop = () => {
+      runId++;
+      clearTimers();
+      killTweens();
+      if (activeSkillName) playReleaseSound();
+      activeSkillName = null;
+      selectedSkillRef.current = null;
+      setSelectedSkill(null);
+      splineApp.setVariable("heading", "");
+      splineApp.setVariable("desc", "");
+
+      originals.forEach((_, skillName) => animateBack(skillName, 0.8));
+    };
+
+    return { start, stop };
+  };
+
+  const getPopOutKeyAnimation = () => {
+    if (!splineApp) return { start: () => { }, stop: () => { } };
+
+    let activeSkillName: string | null = null;
+    let autoIndex = 0;
+    let autoRunning = false;
+    let pausedByHover = false;
+    let lockedByClick = false;
+    let pointerInsideKeyboard = false;
+    let cycleId = 0;
+    let resumeTimer: number | null = null;
+    let showTimer: number | null = null;
+    let controls: { stop: () => void }[] = [];
+    const originals = new Map<string, KeyTransform>();
+    const emphasizedKeys = new Set<string>();
+
+    const keySkills = () =>
+      Object.values(SKILLS).filter((skill) => splineApp.findObjectByName(skill.name));
+
+    const rememberOriginal = (skillName: string, keycap: SPEObject) => {
+      if (originals.has(skillName)) return;
+      originals.set(skillName, {
+        position: { x: keycap.position.x, y: keycap.position.y, z: keycap.position.z },
+        rotation: { x: keycap.rotation.x, y: keycap.rotation.y, z: keycap.rotation.z },
+        scale: { x: keycap.scale.x, y: keycap.scale.y, z: keycap.scale.z },
+      });
+    };
+
+    const clearTimers = () => {
+      if (resumeTimer) window.clearTimeout(resumeTimer);
+      if (showTimer) window.clearTimeout(showTimer);
+      resumeTimer = null;
+      showTimer = null;
+    };
+
+    const stopControls = () => {
+      controls.forEach((control) => control.stop());
+      controls = [];
+    };
+
+    const springTo = (
+      target: { x: number; y: number; z: number },
+      to: { x: number; y: number; z: number }
+    ) => {
+      const from = { x: target.x, y: target.y, z: target.z };
+      const control = animate(0, 1, {
+        type: "spring",
+        stiffness: 520,
+        damping: 26,
+        mass: 0.55,
+        onUpdate: (progress) => {
+          target.x = from.x + (to.x - from.x) * progress;
+          target.y = from.y + (to.y - from.y) * progress;
+          target.z = from.z + (to.z - from.z) * progress;
+        },
+      });
+      controls.push(control);
+    };
+
+    const setKeyVisualEmphasis = (keycap: SPEObject, active: boolean) => {
+      const object = keycap as unknown as {
+        castShadow?: boolean;
+        receiveShadow?: boolean;
+        traverse?: (callback: (child: unknown) => void) => void;
+      };
+      object.castShadow = active;
+      object.receiveShadow = true;
+      object.traverse?.((child) => {
+        const mesh = child as {
+          castShadow?: boolean;
+          receiveShadow?: boolean;
+          material?: {
+            emissiveIntensity?: number;
+            opacity?: number;
+          };
+        };
+        mesh.castShadow = active;
+        mesh.receiveShadow = true;
+        if (mesh.material && "emissiveIntensity" in mesh.material) {
+          mesh.material.emissiveIntensity = active ? 0.18 : 0;
+        }
+      });
+
+      if (active) emphasizedKeys.add(keycap.name);
+      else emphasizedKeys.delete(keycap.name);
+    };
+
+    const returnKey = (skillName: string) => {
+      const keycap = splineApp.findObjectByName(skillName);
+      const original = originals.get(skillName);
+      if (!keycap || !original) return;
+
+      setKeyVisualEmphasis(keycap, false);
+      springTo(keycap.position, original.position);
+      springTo(keycap.rotation, original.rotation);
+      springTo(keycap.scale, original.scale);
+    };
+
+    const popKey = (skill: Skill) => {
+      const keycap = splineApp.findObjectByName(skill.name);
+      if (!keycap) return;
+
+      rememberOriginal(skill.name, keycap);
+      const original = originals.get(skill.name);
+      if (!original) return;
+
+      if (activeSkillName && activeSkillName !== skill.name) {
+        returnKey(activeSkillName);
+        playReleaseSound();
+      }
+
+      activeSkillName = skill.name;
+      selectedSkillRef.current = skill;
+      setSelectedSkill(skill);
+      playPressSound();
+      splineApp.setVariable("heading", skill.label);
+      splineApp.setVariable("desc", skill.shortDescription);
+      setKeyVisualEmphasis(keycap, true);
+
+      const rotateZ = ((Math.random() * 8 - 4) * Math.PI) / 180;
+
+      springTo(keycap.position, {
+        x: original.position.x,
+        y: original.position.y - 35,
+        z: original.position.z + 18,
+      });
+      springTo(keycap.rotation, {
+        x: original.rotation.x,
+        y: original.rotation.y,
+        z: original.rotation.z + rotateZ,
+      });
+      springTo(keycap.scale, {
+        x: original.scale.x * 1.08,
+        y: original.scale.y * 1.08,
+        z: original.scale.z * 1.08,
+      });
+
+    };
+
+    const scheduleNext = (delay = 0) => {
+      clearTimers();
+      const currentCycle = cycleId;
+
+      showTimer = window.setTimeout(() => {
+        if (!autoRunning || pausedByHover || lockedByClick || currentCycle !== cycleId) return;
+
+        const skills = keySkills();
+        if (skills.length === 0) return;
+
+        const skill = skills[autoIndex % skills.length];
+        popKey(skill);
+        autoIndex = (autoIndex + 1) % skills.length;
+
+        showTimer = window.setTimeout(() => {
+          if (!autoRunning || pausedByHover || lockedByClick || currentCycle !== cycleId) return;
+          if (activeSkillName) {
+            returnKey(activeSkillName);
+            playReleaseSound();
+          }
+          activeSkillName = null;
+          selectedSkillRef.current = null;
+          setSelectedSkill(null);
+          splineApp.setVariable("heading", "");
+          splineApp.setVariable("desc", "");
+          scheduleNext(250);
+        }, 2000);
+      }, delay);
+    };
+
+    const start = () => {
+      cycleId++;
+      autoRunning = true;
+      pausedByHover = false;
+      lockedByClick = false;
+      pointerInsideKeyboard = false;
+      stopControls();
+      keySkills().forEach((skill) => {
+        const keycap = splineApp.findObjectByName(skill.name);
+        if (keycap) rememberOriginal(skill.name, keycap);
+      });
+      scheduleNext(800);
+    };
+
+    const stop = () => {
+      cycleId++;
+      autoRunning = false;
+      pausedByHover = false;
+      lockedByClick = false;
+      pointerInsideKeyboard = false;
+      clearTimers();
+      stopControls();
+      if (activeSkillName) playReleaseSound();
+      activeSkillName = null;
+      selectedSkillRef.current = null;
+      setSelectedSkill(null);
+      splineApp.setVariable("heading", "");
+      splineApp.setVariable("desc", "");
+      originals.forEach((_, skillName) => returnKey(skillName));
+      emphasizedKeys.forEach((skillName) => {
+        const keycap = splineApp.findObjectByName(skillName);
+        if (keycap) setKeyVisualEmphasis(keycap, false);
+      });
+    };
+
+    const pauseForHover = () => {
+      pointerInsideKeyboard = true;
+      pausedByHover = true;
+      clearTimers();
+    };
+
+    const resumeAfterHover = () => {
+      pointerInsideKeyboard = false;
+      if (resumeTimer) window.clearTimeout(resumeTimer);
+      resumeTimer = window.setTimeout(() => {
+        lockedByClick = false;
+        pausedByHover = false;
+        autoRunning = true;
+        const currentActive = activeSkillName;
+        if (currentActive) {
+          returnKey(currentActive);
+          playReleaseSound();
+          activeSkillName = null;
+          selectedSkillRef.current = null;
+          setSelectedSkill(null);
+          splineApp.setVariable("heading", "");
+          splineApp.setVariable("desc", "");
+          scheduleNext(250);
+          return;
+        }
+
+        scheduleNext(0);
+      }, 2000);
+    };
+
+    const selectSkill = (skill: Skill) => {
+      clearTimers();
+      lockedByClick = true;
+      autoRunning = false;
+      pausedByHover = pointerInsideKeyboard;
+      const skills = keySkills();
+      const clickedIndex = skills.findIndex((item) => item.name === skill.name);
+      if (clickedIndex >= 0) autoIndex = (clickedIndex + 1) % skills.length;
+
+      if (activeSkillName && activeSkillName !== skill.name) {
+        const previousSkillName = activeSkillName;
+        returnKey(previousSkillName);
+        playReleaseSound();
+        window.setTimeout(() => popKey(skill), 180);
+        return;
+      }
+
+      popKey(skill);
+    };
+
+    splineApp.addEventListener("mouseHover", (event) => {
+      const targetName = event.target.name;
+      if (targetName === "body" || targetName === "platform") {
+        resumeAfterHover();
+        return;
+      }
+
+      if (SKILLS[targetName as SkillNames]) pauseForHover();
+    });
+
+    splineApp.addEventListener("mouseDown", (event) => {
+      const skill = SKILLS[event.target.name as SkillNames];
+      if (skill) selectSkill(skill);
+    });
+
+    return { start, stop };
+  };
+
   const updateKeyboardTransform = async () => {
     if (!splineApp) return;
     const kbd = splineApp.findObjectByName("keyboard");
@@ -289,13 +710,17 @@ const KeyboardScene = ({ maxDpr }: { maxDpr: number }) => {
   // Initialize GSAP and Spline interactions
   useEffect(() => {
     if (!splineApp) return;
-    handleSplineInteractions();
+    if (!KEYBOARD_POP_MODE) handleSplineInteractions();
     const timelines = setupScrollAnimations();
     bongoAnimationRef.current = getBongoAnimation();
     keycapAnimationsRef.current = getKeycapsAnimation();
+    dropKeysAnimationRef.current = getDropKeysAnimation();
+    popOutKeyAnimationRef.current = getPopOutKeyAnimation();
     return () => {
       bongoAnimationRef.current?.stop()
       keycapAnimationsRef.current?.stop()
+      dropKeysAnimationRef.current?.stop()
+      popOutKeyAnimationRef.current?.stop()
       // Kill the section ScrollTriggers so they don't orphan when the scene
       // unmounts (e.g. toggling reduced motion) and fire on the disposed app.
       timelines.forEach((tl) => {
@@ -392,7 +817,7 @@ const KeyboardScene = ({ maxDpr }: { maxDpr: number }) => {
 
     const manageAnimations = async () => {
       // Reset text if not in skills
-      if (activeSection !== "skills") {
+      if (activeSection !== "skills" && !DROP_KEYS_ANIMATION && !KEYBOARD_POP_MODE) {
         splineApp.setVariable("heading", "");
         splineApp.setVariable("desc", "");
       }
@@ -406,6 +831,33 @@ const KeyboardScene = ({ maxDpr }: { maxDpr: number }) => {
       } else {
         rotateKeyboard?.pause();
         teardownKeyboard?.pause();
+      }
+
+      if (KEYBOARD_POP_MODE && activeSection === "skills") {
+        bongoAnimationRef.current?.stop();
+        teardownKeyboard?.pause();
+        keycapAnimationsRef.current?.stop();
+        dropKeysAnimationRef.current?.stop();
+        popOutKeyAnimationRef.current?.start();
+        return;
+      }
+
+      if (KEYBOARD_POP_MODE) {
+        popOutKeyAnimationRef.current?.stop();
+      }
+
+      if (DROP_KEYS_ANIMATION && activeSection === "skills") {
+        bongoAnimationRef.current?.stop();
+        teardownKeyboard?.pause();
+        keycapAnimationsRef.current?.stop();
+        await sleep(500);
+        if (cancelled) return;
+        dropKeysAnimationRef.current?.start();
+        return;
+      }
+
+      if (DROP_KEYS_ANIMATION) {
+        dropKeysAnimationRef.current?.stop();
       }
 
       // Handle Bongo Cat
@@ -427,10 +879,10 @@ const KeyboardScene = ({ maxDpr }: { maxDpr: number }) => {
         keycapAnimationsRef.current?.start();
       } else {
         await sleep(600);
-        if (cancelled) return;
-        teardownKeyboard?.pause();
-        keycapAnimationsRef.current?.stop();
-      }
+          if (cancelled) return;
+          teardownKeyboard?.pause();
+          keycapAnimationsRef.current?.stop();
+        }
     };
 
     manageAnimations();

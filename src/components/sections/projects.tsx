@@ -3,10 +3,12 @@ import React from "react";
 import {
   ResponsiveDialog,
   ResponsiveDialogContent,
+  ResponsiveDialogTitle,
   ResponsiveDialogTrigger,
 } from "../ui/responsive-dialog";
 import { FloatingDock } from "../ui/floating-dock";
 import { ScrollArea } from "../ui/scroll-area";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { motion } from "motion/react";
@@ -30,7 +32,65 @@ const ProjectsSection = () => {
   );
 };
 
+const ProjectThumbnail = ({ project }: { project: Project }) => {
+  const images = project.thumbnailImages ?? [];
+  const [activeIndex, setActiveIndex] = React.useState(0);
+  const [isPaused, setIsPaused] = React.useState(false);
+
+  React.useEffect(() => {
+    if (images.length <= 1 || isPaused) return;
+
+    const interval = window.setInterval(() => {
+      setActiveIndex((current) => (current + 1) % images.length);
+    }, 3000);
+
+    return () => window.clearInterval(interval);
+  }, [images.length, isPaused]);
+
+  if (images.length <= 1) {
+    return (
+      <ScrollingPreview
+        src={project.src}
+        alt={project.title}
+      />
+    );
+  }
+
+  return (
+    <div
+      className="absolute inset-0"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+    >
+      {images.map((image, index) => (
+        <img
+          key={image}
+          src={image}
+          alt={project.title}
+          className="absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ease-in-out"
+          style={{ opacity: index === activeIndex ? 1 : 0 }}
+        />
+      ))}
+    </div>
+  );
+};
+
 const ProjectCard = ({ project }: { project: Project }) => {
+  const isFeaturedReplacement =
+    project.id === "realpath" || project.id === "document-saathi";
+  const thumbnailTitle =
+    project.id === "realpath"
+      ? "RealPath"
+      : project.id === "document-saathi"
+        ? "Document Saathi"
+        : project.title;
+  const thumbnailBadge =
+    project.id === "realpath"
+      ? "AI Career"
+      : project.id === "document-saathi"
+        ? "Document Vault"
+        : project.category;
+
   return (
     <div className="flex items-center justify-center">
       <ResponsiveDialog>
@@ -39,17 +99,14 @@ const ProjectCard = ({ project }: { project: Project }) => {
             className="group relative w-full max-w-[400px] h-auto rounded-lg overflow-hidden ring-1 ring-white/5"
             style={{ aspectRatio: "3/2" }}
           >
-            <ScrollingPreview
-              src={project.src}
-              alt={project.title}
-            />
+            <ProjectThumbnail project={project} />
             <div className="absolute w-full h-24 bottom-0 left-0 bg-gradient-to-t from-background via-background/80 to-transparent pointer-events-none z-10">
               <div className="flex flex-col h-full items-start justify-end p-4">
                 <div className="text-lg text-left [text-shadow:0_1px_4px_rgba(0,0,0,0.6)]">
-                  {project.title}
+                  {thumbnailTitle}
                 </div>
                 <div className="text-xs bg-primary text-primary-foreground rounded-lg w-fit px-2">
-                  {project.category}
+                  {thumbnailBadge}
                 </div>
               </div>
             </div>
@@ -57,6 +114,10 @@ const ProjectCard = ({ project }: { project: Project }) => {
         </ResponsiveDialogTrigger>
 
         <ResponsiveDialogContent className="md:max-w-4xl md:h-[85vh] md:!flex md:flex-col md:overflow-hidden md:p-0 md:gap-0">
+          <VisuallyHidden>
+            <ResponsiveDialogTitle>{project.title}</ResponsiveDialogTitle>
+          </VisuallyHidden>
+
           {/* Sticky header */}
           <div className="shrink-0 border-b border-border bg-background/80 backdrop-blur-sm px-8 py-5">
             <div className="flex items-center justify-between gap-4">
@@ -75,13 +136,13 @@ const ProjectCard = ({ project }: { project: Project }) => {
                     target="_blank"
                     className="text-xs text-muted-foreground hover:text-foreground transition-colors underline underline-offset-2"
                   >
-                    Source
+                    {isFeaturedReplacement ? "GitHub" : "Source"}
                   </Link>
                 )}
                 {project.live && project.live !== "#" && (
                   <Link href={project.live} target="_blank">
                     <button className="group flex items-center gap-2 bg-primary text-primary-foreground text-sm font-medium px-4 py-1.5 rounded-full hover:bg-primary/80 transition-colors">
-                      Visit
+                      {isFeaturedReplacement ? "Live Demo" : "Visit"}
                       <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                     </button>
                   </Link>

@@ -11,9 +11,13 @@ import { useRouter } from "next/navigation";
 import { z } from "zod";
 
 const formSchema = z.object({
-  fullName: z.string().min(2, "Full name must be at least 2 characters"),
-  email: z.string().email("Please enter a valid email address"),
-  message: z.string().min(10, "Message must be at least 10 characters"),
+  fullName: z.string().trim().min(1, "Name is required"),
+  email: z
+    .string()
+    .trim()
+    .min(1, "Email is required")
+    .email("Please enter a valid email address"),
+  message: z.string().trim().min(1, "Message is required"),
 });
 
 type FieldErrors = Partial<Record<keyof z.infer<typeof formSchema>, string>>;
@@ -48,15 +52,14 @@ const ContactForm = () => {
       const res = await fetch("/api/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fullName, email, message }),
+        body: JSON.stringify({ name: fullName, email, message }),
       });
       if (!res.ok) {
         const data = await res.json();
         throw new Error(data.error || `Request failed (${res.status})`);
       }
       toast({
-        title: "Thank you!",
-        description: "I'll get back to you as soon as possible.",
+        title: "Message sent successfully.",
         variant: "default",
         className: cn("top-0 mx-auto flex fixed md:top-4 md:right-4"),
       });
@@ -70,8 +73,7 @@ const ContactForm = () => {
       }, 1000);
     } catch (err) {
       toast({
-        title: "Error",
-        description: "Something went wrong! Please try again.",
+        title: "Something went wrong.",
         className: cn(
           "top-0 w-full flex justify-center fixed md:max-w-7xl md:top-4 md:right-4"
         ),
@@ -127,7 +129,7 @@ const ContactForm = () => {
         {loading ? (
           <div className="flex items-center justify-center">
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            <p>Please wait</p>
+            <p>Sending...</p>
           </div>
         ) : (
           <div className="flex items-center justify-center">

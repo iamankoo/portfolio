@@ -11,6 +11,7 @@ import ContactForm from "../ContactForm";
 import { config } from "@/data/config";
 import { SectionHeader } from "./section-header";
 import SectionWrapper from "../ui/section-wrapper";
+import { Button } from "../ui/button";
 
 const ContactSection = () => {
   return (
@@ -33,10 +34,14 @@ const ContactSection = () => {
               >
                 {config.email.replace(/@/g, "(at)")}
               </a>{" "}
-              or drop your info here.
+              or call {config.phone}. Based in {config.location}. You can also
+              drop your info here.
             </CardDescription>
           </CardHeader>
           <CardContent>
+            <Button onClick={() => window.open("/resume/resume-final.pdf", "_blank")}>
+              Resume
+            </Button>
             <ContactForm />
           </CardContent>
         </Card>

@@ -76,19 +76,22 @@ const HeroSection = () => {
                       "cursor-default sm:text-xl md:text-xl whitespace-nowrap bg-clip-text "
                     )}
                   >
-                    Co-Founder & Engineer
+                    {config.role}
                   </p>
                 </BlurIn>
               </div>
               <div className="mt-8 flex flex-col gap-3 w-fit">
-                <Link href="/resume" className="flex-1">
+                <div className="flex-1">
                   <BoxReveal delay={2} width="100%" >
-                    <Button className="flex items-center gap-2 w-full">
+                    <Button
+                      className="flex items-center gap-2 w-full"
+                      onClick={() => window.open("/resume/resume-final.pdf", "_blank")}
+                    >
                       <File size={24} />
                       <p>Resume</p>
                     </Button>
                   </BoxReveal>
-                </Link>
+                </div>
                 <div className="md:self-start flex gap-3">
                   <Tooltip delayDuration={300}>
                     <TooltipTrigger asChild>

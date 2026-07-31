@@ -61,16 +61,37 @@ const brand = (title: string, file: string): Skill => ({
   icon: <MaskIcon src={`/assets/logos/${file}`} title={title} />,
 });
 
+const brandSrc = (title: string, src: string): Skill => ({
+  title,
+  bg: "black",
+  fg: "white",
+  icon: <MaskIcon src={src} title={title} />,
+});
+
 const PROJECT_SKILLS = {
   next: brand("Next.js", "nextdotjs-mono.svg"),
   react: brand("React.js", "react-mono.svg"),
   ts: brand("TypeScript", "typescript-mono.svg"),
   tailwind: brand("Tailwind", "tailwind-css-mono.svg"),
   node: brand("Node.js", "nodedotjs-mono.svg"),
+  prisma: brand("Prisma", "prisma-mono.svg"),
+  resend: brand("Resend", "vercel-mono.svg"),
   python: brand("Python", "python-mono.svg"),
   postgres: brand("PostgreSQL", "postgresql-mono.svg"),
   mongo: brand("MongoDB", "mongodb-mono.svg"),
+  flutter: brandSrc(
+    "Flutter",
+    "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/flutter/flutter-original.svg"
+  ),
+  dart: brandSrc(
+    "Dart",
+    "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/dart/dart-original.svg"
+  ),
+  supabase: brand("Supabase", "supabase-mono.svg"),
+  cloudStorage: brand("Cloud Storage", "cloudflare-mono.svg"),
   aiSDK: brand("Vercel AI SDK", "vercel-mono.svg"),
+  aiApis: brand("AI APIs", "anthropic-mono.svg"),
+  aiAssistant: brand("AI Assistant", "mistral-ai-mono.svg"),
   anthropic: brand("Anthropic Claude", "anthropic-mono.svg"),
   mistral: brand("Mistral AI", "mistral-ai-mono.svg"),
   sockerio: brand("Socket.io", "socketdotio-mono.svg"),
@@ -84,6 +105,7 @@ export type Project = {
   title: string;
   src: string;
   screenshots: string[];
+  thumbnailImages?: string[];
   skills: { frontend: Skill[]; backend: Skill[] };
   content: React.ReactNode | any;
   github?: string;
@@ -92,68 +114,91 @@ export type Project = {
 
 const projects: Project[] = [
   {
-    id: "callhq",
-    category: "Voice AI",
-    title: "CallHQ.ai",
-    src: `${BASE_PATH}/callhq/callhq.png`,
-    screenshots: ["callhq.png"],
-    live: "https://callhq.ai",
+    id: "realpath",
+    category: "AI Resume Builder",
+    title: "RealPath – AI Resume Builder",
+    src: "/assets/Real-path1.png",
+    screenshots: [
+      "/assets/Real-path1.png",
+      "/assets/Real-path2.png",
+      "/assets/Real-path3.png",
+      "/assets/Real-path4.png",
+    ],
+    thumbnailImages: [
+      "/assets/Real-path1.png",
+      "/assets/Real-path2.png",
+      "/assets/Real-path3.png",
+      "/assets/Real-path4.png",
+    ],
+    live: "https://real-path.vercel.app/",
+    github: "https://github.com/iamankoo/real-path",
     skills: {
       frontend: [
-        PROJECT_SKILLS.ts,
         PROJECT_SKILLS.next,
         PROJECT_SKILLS.react,
+        PROJECT_SKILLS.ts,
         PROJECT_SKILLS.tailwind,
       ],
       backend: [
-        PROJECT_SKILLS.node,
-        PROJECT_SKILLS.python,
-        PROJECT_SKILLS.aiSDK,
-        PROJECT_SKILLS.anthropic,
+        PROJECT_SKILLS.prisma,
+        PROJECT_SKILLS.postgres,
+        PROJECT_SKILLS.resend,
+        PROJECT_SKILLS.aiApis,
       ],
     },
     get content() {
       return (
         <div>
           <TypographyP className="font-mono">
-            AI-powered voice agents for sales, customer engagement, and lead
-            generation — natural, human-like phone conversations at scale.
+            A production-ready AI-powered resume builder that helps users create
+            ATS-friendly resumes with live editing, multiple templates,
+            AI-assisted content generation, resume scoring, PDF export, and
+            modern career tools.
           </TypographyP>
           <ProjectsLinks live={this.live} />
-          <SlideShow images={[`${BASE_PATH}/callhq/callhq.png`]} />
+          <SlideShow images={this.screenshots} />
         </div>
       );
     },
   },
   {
-    id: "broki",
-    category: "Marketplace",
-    title: "Broki",
-    src: `${BASE_PATH}/broki/broki.png`,
-    screenshots: ["broki.png"],
-    live: "https://broki.in",
+    id: "document-saathi",
+    category: "Document Vault",
+    title: "Document Saathi – Secure Family Document Vault",
+    src: "/assets/ds1.png",
+    screenshots: [
+      "/assets/ds1.png",
+      "/assets/ds2.png",
+      "/assets/ds3.png",
+      "/assets/ds4.png",
+    ],
+    thumbnailImages: [
+      "/assets/ds1.png",
+      "/assets/ds2.png",
+      "/assets/ds3.png",
+      "/assets/ds4.png",
+    ],
+    live: "https://drive.google.com/file/d/1gRG6DB1SOa79i3Yh7HMaboefQv8_oEv1/view?usp=sharing",
+    github: "https://github.com/iamankoo/Document-Saathi-Updates",
     skills: {
-      frontend: [
-        PROJECT_SKILLS.ts,
-        PROJECT_SKILLS.next,
-        PROJECT_SKILLS.react,
-        PROJECT_SKILLS.tailwind,
-      ],
+      frontend: [PROJECT_SKILLS.flutter, PROJECT_SKILLS.dart],
       backend: [
-        PROJECT_SKILLS.node,
-        PROJECT_SKILLS.postgres,
-        PROJECT_SKILLS.mongo,
+        PROJECT_SKILLS.supabase,
+        PROJECT_SKILLS.cloudStorage,
+        PROJECT_SKILLS.aiAssistant,
       ],
     },
     get content() {
       return (
         <div>
           <TypographyP className="font-mono">
-            One-stop marketplace for food &amp; beverage — cloud kitchens,
-            restaurants, and commercial spaces across Delhi NCR.
+            A secure family document management application that allows multiple
+            family members to upload, organize, manage and securely access
+            important family documents with cloud synchronization, family vaults,
+            messaging, and integrated AI assistant support.
           </TypographyP>
           <ProjectsLinks live={this.live} />
-          <SlideShow images={[`${BASE_PATH}/broki/broki.png`]} />
+          <SlideShow images={this.screenshots} />
         </div>
       );
     },
