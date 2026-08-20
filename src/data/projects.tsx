@@ -125,9 +125,10 @@ export type Project = {
   comingSoon?: boolean;
 };
 
-// Display order = grid order. Add new real projects at the TOP of this array
-// so they surface first automatically; keep the two "Coming Soon" placeholders
-// as the last two entries.
+// Display order = grid order (3 cards per row on desktop). Add new real
+// projects at the TOP of this array so they surface first automatically;
+// keep the single "Coming Soon" placeholder as the last entry so the total
+// count stays a clean multiple of 3.
 const projects: Project[] = [
   {
     id: "deeplens",
@@ -218,6 +219,44 @@ const projects: Project[] = [
             recommendations on an async FastAPI + SQLAlchemy backend, with
             OCR-based document parsing and a Groq LLM pipeline automating
             triage of incoming complaints.
+          </TypographyP>
+          <ProjectsLinks live={this.live} />
+          <SlideShow images={this.screenshots} />
+        </div>
+      );
+    },
+  },
+  {
+    id: "nightowl",
+    category: "AI Job Automation",
+    title: "NightOwl – AI-Powered Job Application Automation Platform",
+    cardTitle: "NightOwl",
+    src: "/assets/NO1.png",
+    screenshots: ["/assets/NO1.png", "/assets/NO2.png", "/assets/NO3.png"],
+    thumbnailImages: ["/assets/NO1.png", "/assets/NO2.png", "/assets/NO3.png"],
+    live: "#",
+    github: "https://github.com/iamankoo/NightOwl",
+    skills: {
+      frontend: [PROJECT_SKILLS.next],
+      backend: [
+        PROJECT_SKILLS.python,
+        PROJECT_SKILLS.fastapi,
+        PROJECT_SKILLS.mysql,
+        PROJECT_SKILLS.aiApis,
+      ],
+    },
+    get content() {
+      return (
+        <div>
+          <TypographyP className="font-mono">
+            NightOwl is an AI-powered job application automation platform. It
+            discovers verified company career pages and open roles, analyzes
+            application forms, maps candidate data, and fills dynamic fields —
+            checkboxes, dropdowns, autocomplete, resume uploads, and
+            multi-page forms — while tracking every application through a
+            persistent job queue. It also automates recruiter outreach and
+            cold-email campaigns via Gmail integration, with human-review
+            safeguards across the pipeline.
           </TypographyP>
           <ProjectsLinks live={this.live} />
           <SlideShow images={this.screenshots} />
@@ -320,17 +359,6 @@ const projects: Project[] = [
   },
   {
     id: "coming-soon-1",
-    category: "Upcoming",
-    title: "Coming Soon",
-    src: PLACEHOLDER_IMG,
-    screenshots: [],
-    live: "#",
-    comingSoon: true,
-    skills: { frontend: [], backend: [] },
-    content: null,
-  },
-  {
-    id: "coming-soon-2",
     category: "Upcoming",
     title: "Coming Soon",
     src: PLACEHOLDER_IMG,

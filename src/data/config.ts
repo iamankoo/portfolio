@@ -28,7 +28,7 @@ const config = {
     "PostgreSQL",
   ],
   author: "Aniket Raj",
-  role: "Full Stack Developer | AI Engineer | Flutter Developer",
+  role: "AI/ML Engineer | Software Developer Engineer | Fullstack Developer",
   email: "sm.aniketraj@gmail.com",
   phone: "+91 7900905797",
   location: "New Delhi, Delhi, India",
