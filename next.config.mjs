@@ -6,7 +6,6 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  cacheComponents: true,
   turbopack: {
     // Prevent Turbopack from picking a parent lockfile directory as the workspace root.
     root: __dirname,
