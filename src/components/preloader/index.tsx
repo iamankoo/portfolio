@@ -78,8 +78,16 @@ function Preloader({ children, disabled = false }: PreloaderProps) {
         setIsLoading(false);
       },
     });
+    // Safety net: if the tween is ever delayed well past its expected duration
+    // (main-thread contention, a backgrounded tab, third-party scripts), don't
+    // leave the site permanently stuck behind the splash.
+    const safetyTimeout = window.setTimeout(() => {
+      setLoadingPercent(100);
+      setIsLoading(false);
+    }, (LOADING_TIME + 4) * 1000);
     return () => {
       loadingTween.current?.kill();
+      window.clearTimeout(safetyTimeout);
     };
   }, [skip]);
 
