@@ -10,6 +10,16 @@
   z-index: 99;
   // TODO: Add a better color instead of just the background to make it pop more
   background-color: hsl(var(--background));
+  // Safety net: this element only has content once client-side state
+  // (loadingPercent/dimension) is populated — normally for a single tick
+  // before mount, imperceptibly briefly. If a stale/un-hydrated copy of this
+  // overlay is ever left behind in the DOM with no children — e.g. a static
+  // shell that never took over as the live React tree — it must never sit
+  // there opaque and click-blocking on top of the real, working page.
+  &:empty {
+    opacity: 0;
+    pointer-events: none;
+  }
   svg {
     position: absolute;
     top: 0;
