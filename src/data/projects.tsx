@@ -5,7 +5,6 @@ import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import { ReactNode } from "react";
 
-const BASE_PATH = "/assets/projects-screenshots";
 const PLACEHOLDER_IMG = "/assets/logo-dark.svg";
 
 const MaskIcon = ({ src, title }: { src: string; title?: string }) => (
@@ -87,22 +86,34 @@ const PROJECT_SKILLS = {
     "Dart",
     "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/dart/dart-original.svg"
   ),
+  fastapi: brandSrc(
+    "FastAPI",
+    "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/fastapi/fastapi-original.svg"
+  ),
+  mysql: brandSrc(
+    "MySQL",
+    "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg"
+  ),
+  redux: brandSrc(
+    "Redux Toolkit",
+    "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/redux/redux-original.svg"
+  ),
   supabase: brand("Supabase", "supabase-mono.svg"),
   cloudStorage: brand("Cloud Storage", "cloudflare-mono.svg"),
   aiSDK: brand("Vercel AI SDK", "vercel-mono.svg"),
   aiApis: brand("AI APIs", "anthropic-mono.svg"),
   aiAssistant: brand("AI Assistant", "mistral-ai-mono.svg"),
-  anthropic: brand("Anthropic Claude", "anthropic-mono.svg"),
-  mistral: brand("Mistral AI", "mistral-ai-mono.svg"),
-  sockerio: brand("Socket.io", "socketdotio-mono.svg"),
   docker: brand("Docker", "docker-mono.svg"),
-  aws: brand("AWS", "cloudflare-mono.svg"),
 };
 
 export type Project = {
   id: string;
   category: string;
   title: string;
+  /** Short name shown on the grid card; falls back to `title` when omitted. */
+  cardTitle?: string;
+  /** Short tag shown on the grid card; falls back to `category` when omitted. */
+  cardBadge?: string;
   src: string;
   screenshots: string[];
   thumbnailImages?: string[];
@@ -110,13 +121,116 @@ export type Project = {
   content: React.ReactNode | any;
   github?: string;
   live: string;
+  /** Placeholder slot for an upcoming project — renders without links or a dialog. */
+  comingSoon?: boolean;
 };
 
+// Display order = grid order. Add new real projects at the TOP of this array
+// so they surface first automatically; keep the two "Coming Soon" placeholders
+// as the last two entries.
 const projects: Project[] = [
+  {
+    id: "deeplens",
+    category: "AI Platform",
+    title: "DeepLens – Enterprise Multi-Agent RAG Platform",
+    cardTitle: "DeepLens",
+    src: "/assets/DL1.png",
+    screenshots: [
+      "/assets/DL1.png",
+      "/assets/DL2.png",
+      "/assets/DL3.png",
+      "/assets/DL4.png",
+      "/assets/DL5.png",
+      "/assets/DL6.png",
+    ],
+    thumbnailImages: [
+      "/assets/DL1.png",
+      "/assets/DL2.png",
+      "/assets/DL3.png",
+      "/assets/DL4.png",
+      "/assets/DL5.png",
+      "/assets/DL6.png",
+    ],
+    live: "https://frontend-mu-seven-67.vercel.app",
+    github: "https://github.com/iamankoo/DeepLens",
+    skills: {
+      frontend: [PROJECT_SKILLS.react, PROJECT_SKILLS.ts],
+      backend: [
+        PROJECT_SKILLS.python,
+        PROJECT_SKILLS.fastapi,
+        PROJECT_SKILLS.aiApis,
+        PROJECT_SKILLS.docker,
+      ],
+    },
+    get content() {
+      return (
+        <div>
+          <TypographyP className="font-mono">
+            DeepLens is an enterprise multi-agent Retrieval-Augmented
+            Generation (RAG) platform. A multi-agent backend — routing,
+            retrieval, reasoning, and response-generation agents — runs on an
+            async FastAPI service with hybrid semantic search across ChromaDB
+            and FAISS, ingesting PDFs, DOCX, PPTX, images, and emails. A
+            React + TypeScript interface delivers real-time chat, citations,
+            and session memory across Groq, Gemini, and OpenAI models.
+          </TypographyP>
+          <ProjectsLinks live={this.live} />
+          <SlideShow images={this.screenshots} />
+        </div>
+      );
+    },
+  },
+  {
+    id: "aivoa",
+    category: "AI Platform",
+    title: "AIVOA – AI Pharmaceutical Complaint Management System",
+    cardTitle: "AIVOA",
+    src: "/assets/AA1.png",
+    screenshots: [
+      "/assets/AA1.png",
+      "/assets/AA2.png",
+      "/assets/AA3.png",
+      "/assets/AA4.png",
+    ],
+    thumbnailImages: [
+      "/assets/AA1.png",
+      "/assets/AA2.png",
+      "/assets/AA3.png",
+      "/assets/AA4.png",
+    ],
+    live: "#",
+    github: "https://github.com/iamankoo/AIVOA",
+    skills: {
+      frontend: [PROJECT_SKILLS.react, PROJECT_SKILLS.redux],
+      backend: [
+        PROJECT_SKILLS.fastapi,
+        PROJECT_SKILLS.mysql,
+        PROJECT_SKILLS.aiApis,
+      ],
+    },
+    get content() {
+      return (
+        <div>
+          <TypographyP className="font-mono">
+            AIVOA is an AI-powered pharmaceutical complaint management system
+            built for enterprise use. It handles AI-assisted intake, risk
+            assessment, duplicate detection, and CAPA/root-cause
+            recommendations on an async FastAPI + SQLAlchemy backend, with
+            OCR-based document parsing and a Groq LLM pipeline automating
+            triage of incoming complaints.
+          </TypographyP>
+          <ProjectsLinks live={this.live} />
+          <SlideShow images={this.screenshots} />
+        </div>
+      );
+    },
+  },
   {
     id: "realpath",
     category: "AI Resume Builder",
+    cardBadge: "AI Career",
     title: "RealPath – AI Resume Builder",
+    cardTitle: "RealPath",
     src: "/assets/Real-path1.png",
     screenshots: [
       "/assets/Real-path1.png",
@@ -165,6 +279,7 @@ const projects: Project[] = [
     id: "document-saathi",
     category: "Document Vault",
     title: "Document Saathi – Secure Family Document Vault",
+    cardTitle: "Document Saathi",
     src: "/assets/ds1.png",
     screenshots: [
       "/assets/ds1.png",
@@ -204,116 +319,26 @@ const projects: Project[] = [
     },
   },
   {
-    id: "whatsapp",
-    category: "Messaging",
-    title: "CallHQ WhatsApp",
-    src: `${BASE_PATH}/whatsapp/whatsapp.png`,
-    screenshots: ["whatsapp.png"],
-    live: "https://whatsapp.callhq.ai",
-    skills: {
-      frontend: [PROJECT_SKILLS.react, PROJECT_SKILLS.ts, PROJECT_SKILLS.tailwind],
-      backend: [PROJECT_SKILLS.node, PROJECT_SKILLS.sockerio],
-    },
-    get content() {
-      return (
-        <div>
-          <TypographyP className="font-mono">
-            WhatsApp integration layer for CallHQ — automate customer
-            conversations and workflows over WhatsApp Business.
-          </TypographyP>
-          <ProjectsLinks live={this.live} />
-          <SlideShow images={[`${BASE_PATH}/whatsapp/whatsapp.png`]} />
-        </div>
-      );
-    },
-  },
-  {
-    id: "orrdr",
-    category: "Commerce",
-    title: "Orrdr",
-    src: `${BASE_PATH}/orrdr/orrdr.png`,
-    screenshots: ["orrdr.png"],
-    live: "https://orrdr.com",
-    skills: {
-      frontend: [
-        PROJECT_SKILLS.ts,
-        PROJECT_SKILLS.next,
-        PROJECT_SKILLS.react,
-        PROJECT_SKILLS.tailwind,
-      ],
-      backend: [PROJECT_SKILLS.node, PROJECT_SKILLS.postgres],
-    },
-    get content() {
-      return (
-        <div>
-          <TypographyP className="font-mono">
-            Commerce platform for ordering and fulfillment.
-          </TypographyP>
-          <ProjectsLinks live={this.live} />
-          <SlideShow images={[`${BASE_PATH}/orrdr/orrdr.png`]} />
-        </div>
-      );
-    },
-  },
-  {
-    id: "otoma8",
-    category: "AI Platform",
-    title: "Otoma8",
-    src: `${BASE_PATH}/otoma8/otoma8.png`,
-    screenshots: ["otoma8.png"],
-    live: "https://otoma8.com",
-    skills: {
-      frontend: [
-        PROJECT_SKILLS.ts,
-        PROJECT_SKILLS.next,
-        PROJECT_SKILLS.react,
-        PROJECT_SKILLS.tailwind,
-      ],
-      backend: [
-        PROJECT_SKILLS.node,
-        PROJECT_SKILLS.python,
-        PROJECT_SKILLS.aiSDK,
-      ],
-    },
-    get content() {
-      return (
-        <div>
-          <TypographyP className="font-mono">
-            AI platform co-founded alongside CallHQ and Broki — building the next
-            generation of business automation tools.
-          </TypographyP>
-          <ProjectsLinks live={this.live} />
-          <SlideShow images={[`${BASE_PATH}/otoma8/otoma8.png`]} />
-        </div>
-      );
-    },
-  },
-  {
-    id: "tesorobysania",
-    category: "E-commerce",
-    title: "Tesoro by Sania",
+    id: "coming-soon-1",
+    category: "Upcoming",
+    title: "Coming Soon",
     src: PLACEHOLDER_IMG,
     screenshots: [],
-    live: "https://tesorobysania.com",
-    skills: {
-      frontend: [
-        PROJECT_SKILLS.ts,
-        PROJECT_SKILLS.next,
-        PROJECT_SKILLS.react,
-        PROJECT_SKILLS.tailwind,
-      ],
-      backend: [PROJECT_SKILLS.node],
-    },
-    get content() {
-      return (
-        <div>
-          <TypographyP className="font-mono">
-            Premium e-commerce storefront for Tesoro by Sania.
-          </TypographyP>
-          <ProjectsLinks live={this.live} />
-        </div>
-      );
-    },
+    live: "#",
+    comingSoon: true,
+    skills: { frontend: [], backend: [] },
+    content: null,
+  },
+  {
+    id: "coming-soon-2",
+    category: "Upcoming",
+    title: "Coming Soon",
+    src: PLACEHOLDER_IMG,
+    screenshots: [],
+    live: "#",
+    comingSoon: true,
+    skills: { frontend: [], backend: [] },
+    content: null,
   },
 ];
 

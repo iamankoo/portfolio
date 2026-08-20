@@ -32,7 +32,7 @@ const config = {
   email: "sm.aniketraj@gmail.com",
   phone: "+91 7900905797",
   location: "New Delhi, Delhi, India",
-  resume: "/resume-final.pdf",
+  resume: "/resume",
   tagline:
     "Building AI-powered applications, scalable web platforms, automation systems, and cross-platform mobile apps.",
   shortBio:
@@ -46,7 +46,7 @@ const config = {
   githubRepo: "",
 
   get ogImg() {
-    return this.site + "/assets/seo/og-image.png";
+    return this.site + "/assets/home1.png";
   },
   social: {
     twitter: "https://x.com/iamanko0",

@@ -3,12 +3,9 @@
 import React from "react";
 import Link from "next/link";
 import { motion } from "motion/react";
-import { Download, ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import ResumeDoodle from "./resume-doodle";
-
-// Drop the compiled PDF here: public/Akash_Malhotra_Resume.pdf
-const RESUME_PATH = "/Akash_Malhotra_Resume.pdf";
+import { ArrowLeft, ArrowUpRight } from "lucide-react";
+import { config } from "@/data/config";
+import resumes from "@/data/resumes";
 
 export default function ResumeView() {
   return (
@@ -21,13 +18,12 @@ export default function ResumeView() {
         }}
       />
 
-      {/* Top bar: back (left) + download (right) */}
-      <div className="mx-auto w-full max-w-4xl shrink-0 px-4 pt-16 md:pt-24">
+      <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col px-4 pb-16 pt-16 md:pt-24">
         <motion.div
           initial={{ opacity: 0, y: -6 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="mb-4 flex items-center justify-between gap-4"
+          className="mb-10"
         >
           <Link
             href="/"
@@ -36,33 +32,53 @@ export default function ResumeView() {
             <ArrowLeft className="h-4 w-4" />
             Back to portfolio
           </Link>
-          <Button>
-            <a
-              href={RESUME_PATH}
-              download
-              className="flex gap-2 text-sm transition-colors hover:text-foreground"
-            >
-              <Download className="h-4 w-4 transition-transform group-hover:translate-y-0.5" />
-              Download PDF
-            </a>
-          </Button>
         </motion.div>
-      </div>
 
-      {/* PDF viewer — centered on mobile (short A4 card), top-aligned on desktop (tall) */}
-      <div className="mx-auto flex w-full max-w-4xl flex-1 items-center justify-center px-2 pb-6 md:items-start md:px-4 md:pb-24">
-        {/* opacity-only animation: a transformed ancestor would trap the fixed doodle FAB */}
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="aspect-[210/297] w-full overflow-hidden rounded-2xl bg-white shadow-xl"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.05 }}
+          className="mb-10"
         >
-          <ResumeDoodle
-            src={`${RESUME_PATH}#toolbar=0&navpanes=0&view=FitH`}
-            title="Akash Malhotra — Résumé"
-          />
+          <h1 className="font-display text-3xl font-bold tracking-tight md:text-4xl">
+            Résumés
+          </h1>
+          <p className="mt-3 max-w-xl text-muted-foreground">
+            {config.author} — {config.role}. Pick the variant that best fits
+            the role you&apos;re hiring for; each opens as a PDF in a new
+            tab.
+          </p>
         </motion.div>
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          {resumes.map((resume, index) => (
+            <motion.a
+              key={resume.id}
+              href={resume.file}
+              target="_blank"
+              rel="noopener noreferrer"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.1 + index * 0.08 }}
+              className="group relative flex flex-col gap-4 rounded-xl border border-border bg-card p-6 text-card-foreground shadow-sm transition-colors hover:border-primary/40 hover:shadow-md"
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  {resume.icon}
+                </div>
+                <ArrowUpRight className="h-5 w-5 shrink-0 text-muted-foreground transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-foreground" />
+              </div>
+              <div>
+                <h2 className="font-display text-lg font-semibold tracking-tight">
+                  {resume.label}
+                </h2>
+                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                  {resume.description}
+                </p>
+              </div>
+            </motion.a>
+          ))}
+        </div>
       </div>
     </div>
   );

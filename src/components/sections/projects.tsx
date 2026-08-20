@@ -10,7 +10,7 @@ import { FloatingDock } from "../ui/floating-dock";
 import { ScrollArea } from "../ui/scroll-area";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Sparkles } from "lucide-react";
 import { motion } from "motion/react";
 
 import projects, { Project } from "@/data/projects";
@@ -24,13 +24,36 @@ const ProjectsSection = () => {
     <SectionWrapper id="projects" className="max-w-7xl mx-auto md:min-h-[130vh] px-4">
       <SectionHeader id="projects" title="Projects" />
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {projects.map((project) => (
-          <ProjectCard key={project.id} project={project} />
-        ))}
+        {projects.map((project) =>
+          project.comingSoon ? (
+            <ComingSoonCard key={project.id} project={project} />
+          ) : (
+            <ProjectCard key={project.id} project={project} />
+          )
+        )}
       </div>
     </SectionWrapper>
   );
 };
+
+const ComingSoonCard = ({ project }: { project: Project }) => (
+  <div className="flex items-center justify-center">
+    <div
+      className="relative w-full max-w-[400px] h-auto rounded-lg overflow-hidden border border-dashed border-white/15 bg-white/[0.02]"
+      style={{ aspectRatio: "3/2" }}
+    >
+      <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-muted-foreground">
+        <Sparkles className="w-6 h-6 opacity-60" />
+        <div className="text-center">
+          <div className="text-lg">{project.title}</div>
+          <div className="text-xs mt-1 opacity-70">
+            A new project is in the works
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
 
 const ProjectThumbnail = ({ project }: { project: Project }) => {
   const images = project.thumbnailImages ?? [];
@@ -76,20 +99,8 @@ const ProjectThumbnail = ({ project }: { project: Project }) => {
 };
 
 const ProjectCard = ({ project }: { project: Project }) => {
-  const isFeaturedReplacement =
-    project.id === "realpath" || project.id === "document-saathi";
-  const thumbnailTitle =
-    project.id === "realpath"
-      ? "RealPath"
-      : project.id === "document-saathi"
-        ? "Document Saathi"
-        : project.title;
-  const thumbnailBadge =
-    project.id === "realpath"
-      ? "AI Career"
-      : project.id === "document-saathi"
-        ? "Document Vault"
-        : project.category;
+  const thumbnailTitle = project.cardTitle ?? project.title;
+  const thumbnailBadge = project.cardBadge ?? project.category;
 
   return (
     <div className="flex items-center justify-center">
@@ -136,13 +147,13 @@ const ProjectCard = ({ project }: { project: Project }) => {
                     target="_blank"
                     className="text-xs text-muted-foreground hover:text-foreground transition-colors underline underline-offset-2"
                   >
-                    {isFeaturedReplacement ? "GitHub" : "Source"}
+                    GitHub
                   </Link>
                 )}
                 {project.live && project.live !== "#" && (
                   <Link href={project.live} target="_blank">
                     <button className="group flex items-center gap-2 bg-primary text-primary-foreground text-sm font-medium px-4 py-1.5 rounded-full hover:bg-primary/80 transition-colors">
-                      {isFeaturedReplacement ? "Live Demo" : "Visit"}
+                      Live Demo
                       <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                     </button>
                   </Link>

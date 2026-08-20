@@ -1,12 +1,12 @@
-# 🚀 Akash Malhotra — 3D Portfolio
+# 🚀 Aniket Raj — 3D Portfolio
 
 Interactive 3D developer portfolio with a keyboard where every keycap is a skill. Built with Next.js, React, TypeScript, GSAP, and Motion.
 
-Forked from [Naresh Khatri's 3d-portfolio](https://github.com/Naresh-Khatri/3d-portfolio) template and customized for [Akash Malhotra](https://github.com/akashrmalhotra).
+Forked from [Naresh Khatri's 3d-portfolio](https://github.com/Naresh-Khatri/3d-portfolio) template and customized by [Aniket Raj](https://github.com/iamankoo).
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/akashrmalhotra/3d-portfolio-next)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/iamankoo/portfolio)
 
-![Portfolio Preview](./public/assets/projects-screenshots/callhq/callhq.png)
+![Portfolio Preview](./public/assets/home1.png)
 
 ## ✨ Features
 
@@ -43,8 +43,8 @@ Forked from [Naresh Khatri's 3d-portfolio](https://github.com/Naresh-Khatri/3d-p
 1. **Clone the repository:**
 
     ```bash
-    git clone https://github.com/akashrmalhotra/3d-portfolio-next.git
-    cd 3d-portfolio-next
+    git clone https://github.com/iamankoo/portfolio.git
+    cd portfolio
     ```
 
 2. **Install dependencies:**
@@ -65,6 +65,7 @@ Forked from [Naresh Khatri's 3d-portfolio](https://github.com/Naresh-Khatri/3d-p
     |---|---|---|
     | `RESEND_API_KEY` | Yes | API key from [Resend](https://resend.com) for the contact form |
     | `NEXT_PUBLIC_WS_URL` | No | WebSocket server URL for realtime features (cursors, chat, presence) |
+    | `NEXT_PUBLIC_SITE_URL` | No | Canonical site URL for resolving absolute Open Graph/Twitter share-preview images |
     | `UMAMI_DOMAIN` | No | Umami analytics script URL |
     | `UMAMI_SITE_ID` | No | Umami website ID |
 
@@ -84,15 +85,15 @@ All personal info is centralized in [`src/data/config.ts`](src/data/config.ts):
 
 ```ts
 const config = {
-  title: "Akash Malhotra | Co-Founder & Engineer",
-  author: "Akash Malhotra",
-  email: "contact@broki.in",
-  site: "https://broki.in",
-  githubUsername: "akashrmalhotra",
-  githubRepo: "3d-portfolio-next",
+  title: "Aniket Raj | Full Stack Developer | AI Engineer | Flutter Developer",
+  author: "Aniket Raj",
+  email: "sm.aniketraj@gmail.com",
+  site: "",
+  githubUsername: "iamankoo",
+  githubRepo: "",
   social: {
-    linkedin: "https://www.linkedin.com/in/akashrmalhotra",
-    github: "https://github.com/akashrmalhotra",
+    linkedin: "https://www.linkedin.com/in/raj-aniket/",
+    github: "https://github.com/iamankoo",
     // ...
   },
 };
@@ -104,20 +105,20 @@ Other files to customize:
 |---|---|
 | `src/data/projects.tsx` | Projects, screenshots, descriptions, and tech stacks |
 | `src/data/constants.ts` | Skills list and work experience |
-| `public/Akash_Malhotra_Resume.pdf` | Résumé PDF for the resume page |
-| `public/assets/projects-screenshots/` | Project screenshots (`callhq/`, `broki/`, etc.) |
-| `public/assets/seo/og-image.png` | Social share preview image |
+| `src/data/resumes.tsx` | Résumé variants listed on the `/resume` selection page |
+| `public/resume/` | Résumé PDFs referenced by `src/data/resumes.tsx` |
+| `public/assets/` | Project screenshots and the `home1.png` social share preview |
 
 ### Projects
 
-Screenshots live under `public/assets/projects-screenshots/<project-id>/`. Current projects:
+Screenshots live under `public/assets/`. Current projects:
 
-- [CallHQ.ai](https://callhq.ai)
-- [Broki](https://broki.in)
-- [CallHQ WhatsApp](https://whatsapp.callhq.ai)
-- [Orrdr](https://orrdr.com)
-- [Otoma8](https://otoma8.com)
-- [Tesoro by Sania](https://tesorobysania.com)
+- [DeepLens](https://github.com/iamankoo/DeepLens)
+- [AIVOA](https://github.com/iamankoo/AIVOA)
+- [RealPath](https://real-path.vercel.app/)
+- [Document Saathi](https://github.com/iamankoo/Document-Saathi-Updates)
+
+New real projects are added to the top of the `projects` array in `src/data/projects.tsx` and surface first automatically; the two "Coming Soon" placeholder cards always stay last.
 
 ---
 
@@ -160,7 +161,7 @@ These features activate automatically when the `NEXT_PUBLIC_WS_URL` environment 
 
 ## 🚀 Deployment
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/akashrmalhotra/3d-portfolio-next)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/iamankoo/portfolio)
 
 This site is deployed on **Vercel**. To deploy your own:
 

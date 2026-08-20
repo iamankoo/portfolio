@@ -85,7 +85,7 @@ const HeroSection = () => {
                   <BoxReveal delay={2} width="100%" >
                     <Button
                       className="flex items-center gap-2 w-full"
-                      onClick={() => window.open("/resume/resume-final.pdf", "_blank")}
+                      onClick={() => window.open(config.resume, "_blank")}
                     >
                       <File size={24} />
                       <p>Resume</p>

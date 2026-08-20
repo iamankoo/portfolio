@@ -39,7 +39,7 @@ const ContactSection = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={() => window.open("/resume/resume-final.pdf", "_blank")}>
+            <Button onClick={() => window.open(config.resume, "_blank")}>
               Resume
             </Button>
             <ContactForm />

@@ -23,7 +23,20 @@ const unbounded = Unbounded({
   display: "swap",
 });
 
+// Resolves relative OG/Twitter image URLs to an absolute origin. Falls back to
+// the stable Vercel production URL, then the per-deployment preview URL, so
+// social-share previews still work correctly before a custom domain is set.
+const siteUrl =
+  config.site ||
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : "http://localhost:3000");
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: config.title,
   description: config.description.long,
   keywords: config.keywords,
@@ -32,12 +45,13 @@ export const metadata: Metadata = {
     title: config.title,
     description: config.description.short,
     url: config.site,
+    siteName: config.author,
     images: [
       {
         url: config.ogImg,
-        width: 800,
-        height: 600,
-        alt: "Portfolio preview",
+        width: 1917,
+        height: 968,
+        alt: `${config.author} — ${config.role}`,
       },
     ],
     type: "website",

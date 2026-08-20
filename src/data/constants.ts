@@ -314,6 +314,18 @@ export type Experience = {
 export const EXPERIENCE: Experience[] = [
   {
     id: 1,
+    startDate: "Jun 2026",
+    endDate: "Aug 2026",
+    title: "App Developer Intern",
+    company: "Ramyoz Solutions",
+    description: [
+      "Built AI-enabled cross-platform mobile apps in Flutter, integrating AI features and REST API calls across core screens.",
+      "Improved app-state management and UI performance alongside senior developers, reducing reported crashes.",
+    ],
+    skills: [SkillNames.FLUTTER, SkillNames.DART, SkillNames.REST_APIS],
+  },
+  {
+    id: 2,
     startDate: "May 2026",
     endDate: "Jul 2026",
     title: "Artificial Intelligence Intern",
@@ -334,7 +346,7 @@ export const EXPERIENCE: Experience[] = [
     ],
   },
   {
-    id: 2,
+    id: 3,
     startDate: "Feb 2026",
     endDate: "Apr 2026",
     title: "Web Developer Intern",
@@ -355,7 +367,7 @@ export const EXPERIENCE: Experience[] = [
     ],
   },
   {
-    id: 3,
+    id: 4,
     startDate: "Final Year",
     endDate: "Present",
     title: "B.Tech Computer Science & Engineering",
