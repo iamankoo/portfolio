@@ -2,8 +2,6 @@
 
 Interactive 3D developer portfolio with a keyboard where every keycap is a skill. Built with Next.js, React, TypeScript, GSAP, and Motion.
 
-Forked from [Naresh Khatri's 3d-portfolio](https://github.com/Naresh-Khatri/3d-portfolio) template and customized by [Aniket Raj](https://github.com/iamankoo).
-
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/iamankoo/portfolio)
 
 ![Portfolio Preview](./public/assets/home1.png)
@@ -176,4 +174,4 @@ This site is deployed on **Vercel**. To deploy your own:
 
 This project is open source and available under the [MIT License](LICENSE).
 
-Built on the excellent [3d-portfolio](https://github.com/Naresh-Khatri/3d-portfolio) template by [Naresh Khatri](https://github.com/Naresh-Khatri). If you use this template, a credit or link back to the original repo would be much appreciated ❤️
+
